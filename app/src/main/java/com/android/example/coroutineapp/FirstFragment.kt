@@ -23,6 +23,7 @@ class FirstFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    var number: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,32 +38,24 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch{
-            val value1 : Int? = provideValue1()
-            val value2 : Int = provideValue2()
-            printValue(value1, value2)
+        binding.buttonFirst.setOnClickListener {
+            increaseValue()
         }
     }
 
-    suspend fun provideValue1(): Int? {
-        var tempValue1 = binding.editText.text.toString().toIntOrNull()
-        return tempValue1
-    }
-
-    suspend fun provideValue2(): Int {
-        var tempValue2 = 0
-        binding.buttonFirst.setOnClickListener{
-            tempValue2++
-        }
-        return tempValue2
-    }
-
-    suspend fun printValue(value1: Int?, value2: Int) {
-        delay(2000)
-        if (value1 != null) {
-            binding.textview.text = "value is: ${value1 + value2}"
+    private fun increaseValue() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(2000)
+            number?.let {
+                number = number?.plus(1)
+                binding.textview.text = "value is: $it"
+            } ?: kotlin.run {
+                number = binding.editText.text.toString().toIntOrNull()?.plus(1)
+                binding.textview.text = "value is: $number"
+            }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
